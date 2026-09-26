@@ -1,0 +1,7 @@
+# ADR 0001 — BigQuery subscription for the raw landing zone (no Dataflow, no code)
+
+**Status:** accepted
+
+Every accepted message must be stored untouched for audit and replay. Options: a Dataflow template, a Cloud Run consumer, or a **Pub/Sub BigQuery subscription**. The subscription is a managed feature: it writes each message to a table using the *topic's schema*, adds publish metadata (`message_id`, `publish_time`, `attributes`), scales with the topic and costs nothing beyond Pub/Sub throughput. No worker to size, patch or monitor.
+
+**Trade-offs.** It is at-least-once, so `raw.events` can contain duplicates (the tests prove this: 316 rows, 306 distinct). It cannot transform or reject — hence the *second* path (push → enricher) for validation/enrichment. Messages that BigQuery cannot accept are dead-lettered by Pub/Sub; the subscription's IAM (dataEditor + metadataViewer on `raw` only) keeps its blast radius to one dataset.

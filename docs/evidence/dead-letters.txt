@@ -1,0 +1,12 @@
+$ bq query  # dead letters: the poison events, with their reason for inspection
++----------------------+--------+-----+------------+--------------------+
+|       order_id       | amount | cur | deliveries |     source_sub     |
++----------------------+--------+-----+------------+--------------------+
+| run-1790462272-00300 | -1.17  | GBP | 5          | events-to-enricher |
+| run-1790462272-00301 | -25.76 | GBP | 5          | events-to-enricher |
+| run-1790462272-00302 | -13.69 | USD | 5          | events-to-enricher |
+| run-1790462272-00303 | -29.83 | GBP | 5          | events-to-enricher |
+| run-1790462272-00304 | -31.73 | EUR | 5          | events-to-enricher |
+| run-1790462272-00305 | -33.84 | INR | 5          | events-to-enricher |
++----------------------+--------+-----+------------+--------------------+
+

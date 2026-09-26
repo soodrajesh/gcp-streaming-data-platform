@@ -1,0 +1,20 @@
+$ # as sdp-analyst (impersonated): masked mart
+$ bq query 'SELECT * FROM mart.orders_masked LIMIT 3'
++--------------------------------------+----------------------+--------------+--------+----------+------------+---------------------+
+|               event_id               |       order_id       | customer_key | amount | currency | amount_eur |     event_time      |
++--------------------------------------+----------------------+--------------+--------+----------+------------+---------------------+
+| 004d3c72-6708-4db4-86dd-395e03fe9ff1 | run-1790462067-00012 | e245111f6151 | 389.29 | USD      |   358.1468 | 2026-09-26 22:35:10 |
+| 00c57b2f-d624-4766-ab0f-547d3cc3bc86 | run-1790462067-00059 | d19591dd1d78 |  268.7 | USD      |    247.204 | 2026-09-26 22:35:10 |
+| 025ae813-9a6f-4da6-8381-4873061fd74f | run-1790462272-00245 | e245111f6151 | 279.62 | INR      |     3.0758 | 2026-09-26 22:38:41 |
++--------------------------------------+----------------------+--------------+--------+----------+------------+---------------------+
+
+$ bq query 'SELECT customer_email FROM curated.orders LIMIT 1'
+BigQuery error in query operation: Error processing job 'claude-
+code-507112:bqjob_r3ba28539de1c36b6_000001a0dfe124bb_1': Access Denied: Table
+claude-code-507112:curated.orders: User does not have permission to query table
+
+$ bq query 'SELECT * FROM raw.events LIMIT 1'
+BigQuery error in query operation: Error processing job 'claude-
+code-507112:bqjob_r50cca46194958429_000001a0dfe12bee_1': Access Denied: Table
+claude-code-507112:raw.events: User does not have permission to query table
+

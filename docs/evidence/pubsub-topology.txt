@@ -1,0 +1,28 @@
+$ gcloud pubsub subscriptions list --project claude-code-507112 --format='table(name.basename():label=SUBSCRIPTION,topic.basename():label=TOPIC,bigqueryConfig.table.basename():label=BQ_TABLE,pushConfig.pushEndpoint.basename():label=PUSH,deadLetterPolicy.maxDeliveryAttempts:label=DLQ_AFTER)'
+SUBSCRIPTION        TOPIC       BQ_TABLE                             PUSH                              DLQ_AFTER
+events-to-bq        events      claude-code-507112.raw.events
+events-dlq-to-bq    events-dlq  claude-code-507112.raw.dead_letters
+events-to-enricher  events                                           enricher-mumqq56yxq-ew.a.run.app  5
+
+$ gcloud pubsub topics describe events --project claude-code-507112 --format='yaml(name,schemaSettings)'
+name: projects/claude-code-507112/topics/events
+schemaSettings:
+  encoding: JSON
+  schema: projects/claude-code-507112/schemas/order-event
+
+$ gcloud pubsub topics publish events --project claude-code-507112 --message='{"hello":"world"}' 2>&1 | cut -c1-150
+ERROR: (gcloud.pubsub.topics.publish) INVALID_ARGUMENT: Invalid data in message: Message failed schema validation.
+- '@type': type.googleapis.com/google.rpc.ErrorInfo
+  domain: pubsub.googleapis.com
+  metadata:
+    message: Message failed schema validation
+    revisionInfo: 'Could not validate message with any schema revision for schema:
+      projects/273040233392/schemas/order-event, last checked revision: revision_id=02a57e26
+      failed with status: Invalid data in message: Field was not found in JSON object:
+      event_id.'
+  reason: INVALID_JSON_AVRO_MESSAGE
+
+$ gcloud run services list --project claude-code-507112 --format='table(metadata.name:label=SERVICE,status.url:label=URL)'
+SERVICE   URL
+enricher  https://enricher-mumqq56yxq-ew.a.run.app
+

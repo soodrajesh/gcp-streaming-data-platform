@@ -1,0 +1,13 @@
+$ # last run: 1790462272  (300 valid + 6 poison + 10 duplicates published)
+
+$ bq query  # where did each of the 316 published messages end up?
++------------------------------------+-----+
+|               stage                |  n  |
++------------------------------------+-----+
+| raw.events (rows)                  | 316 |
+| raw.events (distinct event_id)     | 306 |
+| curated.orders (distinct)          | 300 |
+| mart.orders_masked (de-duplicated) | 300 |
+| raw.dead_letters (poison)          |   6 |
++------------------------------------+-----+
+

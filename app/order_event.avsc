@@ -1,0 +1,12 @@
+{
+  "type": "record",
+  "name": "OrderEvent",
+  "fields": [
+    {"name": "event_id", "type": "string"},
+    {"name": "order_id", "type": "string"},
+    {"name": "customer_email", "type": "string"},
+    {"name": "amount", "type": "double"},
+    {"name": "currency", "type": "string"},
+    {"name": "event_time", "type": {"type": "long", "logicalType": "timestamp-micros"}}
+  ]
+}

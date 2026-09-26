@@ -1,0 +1,12 @@
+$ # 1. take a dead letter, fix it (abs of the negative amount), republish to the main topic
+$ gcloud pubsub topics publish events --message='{"event_id": "e52be881-…", "order_id": "run-1790462272-00300", "customer_email": "dee@example.net", "amount": 1.17, "currency": "GBP", "event_time": 1790462321569005}'
+messageIds:
+- '21817721289376387'
+
+$ # 2. 25 s later it is in the mart, enriched
+$ bq query "SELECT order_id, amount, currency, amount_eur FROM mart.orders_masked WHERE order_id='run-1790462272-00300'"
++----------------------+--------+----------+------------+
+|       order_id       | amount | currency | amount_eur |
++----------------------+--------+----------+------------+
+| run-1790462272-00300 |   1.17 | GBP      |     1.3689 |
++----------------------+--------+----------+------------+
