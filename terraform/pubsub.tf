@@ -71,7 +71,19 @@ resource "google_pubsub_subscription" "to_bq" {
     write_metadata      = true
     drop_unknown_fields = true
   }
-  depends_on = [google_bigquery_dataset_iam_member.agent_raw]
+  # rows BigQuery rejects (e.g. a timestamp outside its range) are forwarded instead of retried forever
+  dead_letter_policy {
+    dead_letter_topic     = google_pubsub_topic.dlq.id
+    max_delivery_attempts = 5
+  }
+  depends_on = [google_bigquery_dataset_iam_member.agent_raw, google_pubsub_topic_iam_member.agent_publish_dlq]
+}
+
+resource "google_pubsub_subscription_iam_member" "agent_ack_bq" {
+  project      = var.project_id
+  subscription = google_pubsub_subscription.to_bq.name
+  role         = "roles/pubsub.subscriber"
+  member       = local.pubsub_agent
 }
 
 resource "google_pubsub_subscription" "dlq_to_bq" {

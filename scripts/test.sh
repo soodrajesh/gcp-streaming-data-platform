@@ -26,8 +26,8 @@ P="$PROJECT_ID"
 section "1. Topology"
 check "topic 'events' enforces the Avro schema (JSON encoding)" 'order-event.*JSON|JSON.*order-event' \
   "$(gcloud pubsub topics describe events --project "$P" --format='value(schemaSettings.schema,schemaSettings.encoding)')"
-check "events-to-bq is a BigQuery subscription (topic schema, metadata)" 'raw.*events.*True' \
-  "$(gcloud pubsub subscriptions describe events-to-bq --project "$P" --format='value(bigqueryConfig.table,bigqueryConfig.useTopicSchema)')"
+check "events-to-bq is a BigQuery subscription (topic schema, metadata) with a dead-letter policy" 'raw.*events.*True.*5' \
+  "$(gcloud pubsub subscriptions describe events-to-bq --project "$P" --format='value(bigqueryConfig.table,bigqueryConfig.useTopicSchema,deadLetterPolicy.maxDeliveryAttempts)')"
 check "events-to-enricher pushes with OIDC and dead-letters after 5 attempts" 'sdp-push.*5|5.*sdp-push' \
   "$(gcloud pubsub subscriptions describe events-to-enricher --project "$P" --format='value(pushConfig.oidcToken.serviceAccountEmail,deadLetterPolicy.maxDeliveryAttempts)')"
 check "dead-letter topic drains to BigQuery" 'dead_letters' \
@@ -56,6 +56,10 @@ check "the 6 poison events landed in raw.dead_letters" '^6$' "$dl"
 dlq_attempts=$(bq_scalar "SELECT MAX(CAST(JSON_VALUE(attributes,'\$.CloudPubSubDeadLetterSourceDeliveryCount') AS INT64)) FROM \`$P.raw.dead_letters\` WHERE JSON_VALUE(data,'\$.order_id') LIKE 'run-$RUN-%'")
 say "    delivery-count attribute on the dead letters: $dlq_attempts  (Pub/Sub counts attempts approximately; see runbook 08)"
 check "dead-lettered only after the retry budget (delivery count >= 5)" '^[5-9]$' "$dlq_attempts"
+say "  provoking a BigQuery write failure: schema-valid event whose timestamp is year 10000 (outside BigQuery's range)…"
+gcloud pubsub topics publish events --project "$P" --message="{\"event_id\":\"bqfail-$RUN\",\"order_id\":\"bqfail-$RUN\",\"customer_email\":\"a@b.co\",\"amount\":1.0,\"currency\":\"EUR\",\"event_time\":253402300800000000}" >/dev/null 2>&1
+bqdl=$(wait_scalar "SELECT COUNT(*) FROM \`$P.raw.dead_letters\` WHERE JSON_VALUE(data,'\$.order_id')='bqfail-$RUN' AND JSON_VALUE(attributes,'\$.CloudPubSubDeadLetterSourceSubscription')='events-to-bq'" '^[1-9]$' 480)
+check "a row BigQuery rejects is dead-lettered by the BigQuery subscription (source events-to-bq)" '^[1-9]$' "$bqdl"
 bad_in_curated=$(bq_scalar "SELECT COUNT(*) FROM \`$P.curated.orders\` WHERE $LIKE AND (amount <= 0 OR currency NOT IN ('EUR','USD','GBP','INR'))")
 check "no invalid row reached curated" '^0$' "$bad_in_curated"
 

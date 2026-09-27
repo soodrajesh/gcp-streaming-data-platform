@@ -3,18 +3,18 @@ $ bq query 'SELECT * FROM mart.orders_masked LIMIT 3'
 +--------------------------------------+----------------------+--------------+--------+----------+------------+---------------------+
 |               event_id               |       order_id       | customer_key | amount | currency | amount_eur |     event_time      |
 +--------------------------------------+----------------------+--------------+--------+----------+------------+---------------------+
-| 004d3c72-6708-4db4-86dd-395e03fe9ff1 | run-1790462067-00012 | e245111f6151 | 389.29 | USD      |   358.1468 | 2026-09-26 22:35:10 |
-| 00c57b2f-d624-4766-ab0f-547d3cc3bc86 | run-1790462067-00059 | d19591dd1d78 |  268.7 | USD      |    247.204 | 2026-09-26 22:35:10 |
-| 025ae813-9a6f-4da6-8381-4873061fd74f | run-1790462272-00245 | e245111f6151 | 279.62 | INR      |     3.0758 | 2026-09-26 22:38:41 |
+| 02827c7d-f223-4cf6-837a-69a334ff9804 | run-1790477793-00060 | 8e43ca377012 | 250.41 | EUR      |     250.41 | 2026-09-27 02:57:16 |
+| 03560305-c0dc-4529-a05c-7c02463f0a7b | run-1790477793-00238 | c828d6b93b6a |  274.3 | EUR      |      274.3 | 2026-09-27 02:57:16 |
+| 03e27bee-4f32-4c38-98ad-72f3b7f4aa0f | run-1790477793-00125 | 8e43ca377012 | 289.46 | GBP      |   338.6682 | 2026-09-27 02:57:16 |
 +--------------------------------------+----------------------+--------------+--------+----------+------------+---------------------+
 
 $ bq query 'SELECT customer_email FROM curated.orders LIMIT 1'
 BigQuery error in query operation: Error processing job 'claude-
-code-507112:bqjob_r3ba28539de1c36b6_000001a0dfe124bb_1': Access Denied: Table
+code-507112:bqjob_r82ea4b282bd90ef_000001a0e0d2b5be_1': Access Denied: Table
 claude-code-507112:curated.orders: User does not have permission to query table
 
 $ bq query 'SELECT * FROM raw.events LIMIT 1'
 BigQuery error in query operation: Error processing job 'claude-
-code-507112:bqjob_r50cca46194958429_000001a0dfe12bee_1': Access Denied: Table
+code-507112:bqjob_r37c3733959c0b96c_000001a0e0d2bcf0_1': Access Denied: Table
 claude-code-507112:raw.events: User does not have permission to query table
 

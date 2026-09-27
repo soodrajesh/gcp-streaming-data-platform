@@ -8,7 +8,7 @@ PURGE=0; [ "${1:-}" = "--purge" ] && PURGE=1
 
 log "Project $PROJECT_ID — destroying everything managed by this repo"
 tf_init
-export TF_VAR_image="$(cat "$ROOT/.last-image" 2>/dev/null || echo "")"
+TF_VAR_image="$(cat "$ROOT/.last-image" 2>/dev/null || echo "")"; export TF_VAR_image
 log "1/2 Terraform destroy (Cloud Run, subscriptions, topics, schema, datasets incl. contents, registry, bucket)"
 $TF destroy -input=false -auto-approve
 ok "platform destroyed"

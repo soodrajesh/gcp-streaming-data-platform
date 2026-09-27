@@ -2,11 +2,19 @@ $ bq query  # dead letters: the poison events, with their reason for inspection
 +----------------------+--------+-----+------------+--------------------+
 |       order_id       | amount | cur | deliveries |     source_sub     |
 +----------------------+--------+-----+------------+--------------------+
-| run-1790462272-00300 | -1.17  | GBP | 5          | events-to-enricher |
-| run-1790462272-00301 | -25.76 | GBP | 5          | events-to-enricher |
-| run-1790462272-00302 | -13.69 | USD | 5          | events-to-enricher |
-| run-1790462272-00303 | -29.83 | GBP | 5          | events-to-enricher |
-| run-1790462272-00304 | -31.73 | EUR | 5          | events-to-enricher |
-| run-1790462272-00305 | -33.84 | INR | 5          | events-to-enricher |
+| run-1790477793-00300 | -1.46  | GBP | 5          | events-to-enricher |
+| run-1790477793-00301 | -1.95  | USD | 5          | events-to-enricher |
+| run-1790477793-00302 | -16.82 | GBP | 5          | events-to-enricher |
+| run-1790477793-00303 | -35.84 | EUR | 5          | events-to-enricher |
+| run-1790477793-00304 | -23.25 | USD | 5          | events-to-enricher |
+| run-1790477793-00305 | -42.07 | INR | 5          | events-to-enricher |
 +----------------------+--------+-----+------------+--------------------+
+
+$ bq query  # which subscription forwarded them? (both paths have a dead-letter policy)
++---------------------+--------------+
+| source_subscription | dead_letters |
++---------------------+--------------+
+| events-to-bq        |            1 |
+| events-to-enricher  |            7 |
++---------------------+--------------+
 

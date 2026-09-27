@@ -2,7 +2,7 @@
 
 An event pipeline you can trust: **Pub/Sub with an enforced Avro schema** → a **BigQuery subscription** for a raw, replayable landing zone → a **Cloud Run enricher** with retries and **dead-lettering** → **curated** tables → **PII-masked authorized views** for analysts. Provisioned and destroyed by **one script each**, and every claim is asserted against the running system.
 
-> **Status: deployed and verified live** (europe-west1 / BigQuery EU, 2026-09-26). `./scripts/up.sh` builds it in two Terraform phases and [`scripts/test.sh`](scripts/test.sh) passes **29 of 29** ([results](docs/test-results.md)). The dead-letter replay in [runbook 04](docs/runbooks/04-dead-letters.md) was executed for real. The stack was then removed with `./scripts/down.sh`.
+> **Status: deployed and verified live** (europe-west1 / BigQuery EU, 2026-09-26). `./scripts/up.sh` builds it in two Terraform phases and [`scripts/test.sh`](scripts/test.sh) passes **30 of 30** ([results](docs/test-results.md)). The dead-letter replay in [runbook 04](docs/runbooks/04-dead-letters.md) was executed for real. The stack was then removed with `./scripts/down.sh`.
 
 ```bash
 gcloud config set project <your-project>      # billing linked; the rest is auto-detected
@@ -15,12 +15,12 @@ gcloud config set project <your-project>      # billing linked; the rest is auto
 | | |
 |---|---|
 | ![test suite](docs/img/live-test-suite.png) | ![counts](docs/img/live-pipeline-counts.png) |
-| **`scripts/test.sh`** — 29 checks: topology, schema rejection, end-to-end run, exactly-once reads, governance, security | **316 published → 316 raw (306 distinct) → 300 curated → 300 in the mart, and 6 poison events in the DLQ** |
+| **`scripts/test.sh`** — 30 checks: topology, schema rejection, end-to-end run, exactly-once reads, governance, security | **316 published → 316 raw (306 distinct) → 300 curated → 300 in the mart, and 6 poison events in the DLQ** |
 
 | | |
 |---|---|
 | ![dead letters](docs/img/live-dead-letters.png) | ![replay](docs/img/live-replay.png) |
-| **Dead letters** — the 6 negative-amount events, forwarded by `events-to-enricher` after the retry budget | **Replay** — fix a dead letter, republish, and it appears enriched in the mart 25 s later |
+| **Dead letters** — the 6 negative-amount events (from `events-to-enricher`) plus a year-10000 timestamp that BigQuery rejected (from `events-to-bq`) | **Replay** — fix a dead letter, republish, and it appears enriched in the mart 25 s later |
 
 | | |
 |---|---|
@@ -35,7 +35,7 @@ The Cloud Console views are not included: the console needs an interactive Googl
 |---|---|---|
 | **Bad data stopped at the door** | Avro schema on the topic; wrong shape/type → `INVALID_ARGUMENT` at publish | test §2 |
 | **Nothing lost** | BigQuery subscription lands every accepted message untouched | test §3: 316 rows for 316 published |
-| **Poison doesn't block or vanish** | 422 → retries → dead-letter topic → `raw.dead_letters` + alert; replayable | test §3, runbook 04 |
+| **Poison doesn't block or vanish** | 422 → retries → dead-letter topic → `raw.dead_letters` + alert; replayable. BigQuery write failures dead-letter too | test §3 (both sources), runbook 04 |
 | **Exactly-once results from at-least-once delivery** | duplicates kept in raw, removed at read by `event_id` | 316 → 306 → 300 |
 | **PII never reaches analysts** | authorized views, hashed `customer_key`; no table grants | test §6 (impersonated analyst) |
 | **Least privilege** | one SA per job; only the push identity can invoke the enricher; no SA keys | test §7 |

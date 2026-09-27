@@ -65,10 +65,16 @@ resource "google_storage_bucket_iam_member" "build_src" {
 }
 
 resource "google_project_iam_member" "operator" {
-  for_each = toset(["roles/iam.serviceAccountUser", "roles/run.developer"])
-  project  = var.project_id
-  role     = each.value
-  member   = "user:${var.admin_email}"
+  project = var.project_id
+  role    = "roles/run.developer"
+  member  = "user:${var.admin_email}"
+}
+
+# actAs only on the job's own identity (needed to override env vars when executing the generator job)
+resource "google_service_account_iam_member" "operator_actas_generator" {
+  service_account_id = google_service_account.sa["sdp-generator"].name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "user:${var.admin_email}"
 }
 
 # operator may impersonate the analyst to prove what an analyst can and cannot read

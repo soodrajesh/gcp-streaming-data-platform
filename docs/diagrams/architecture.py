@@ -76,7 +76,7 @@ d.legend(34, 1210, "Numbered flows", [
     ("3", "A push subscription calls the enricher with an OIDC token; a 2xx acknowledges the message"),
     ("4", "The enricher validates, converts to EUR, and inserts into curated.orders (event_id as the insert id); a materialized view aggregates per minute"),
     ("5", "Invalid events return 422; Pub/Sub retries with backoff and after 5 attempts forwards the message to events-dlq"),
-    ("6", "A second BigQuery subscription lands dead letters in raw.dead_letters, and the poison alert fires"),
+    ("6", "A second BigQuery subscription lands dead letters in raw.dead_letters (rows BigQuery itself rejects are forwarded to the same DLQ), and the poison alert fires"),
     ("7", "Analysts query mart views only; the views are authorized on curated, so no direct table access is ever granted"),
 ], w=1710)
 d.key(34, 1430)

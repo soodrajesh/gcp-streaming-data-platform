@@ -4,7 +4,7 @@
 |---|---|---|
 | **Oldest unacked > 5 min** | Dashboard *Oldest unacked age*; `gcloud pubsub subscriptions describe events-to-enricher` | Enricher failing or scaled to a limit → `gcloud run services logs read enricher --region $REGION --limit 50`; raise `max_instance_count`; check BigQuery errors |
 | **Poison events on the DLQ** | [runbook 04](04-dead-letters.md) | Producer bug or bad data |
-| Nothing arrives in `raw.events` | `gcloud pubsub topics list-subscriptions events`; subscription state | BigQuery subscription paused because the Pub/Sub service agent lost `dataEditor` on `raw`, or the table schema drifted from the topic schema |
+| Nothing arrives in `raw.events` | `gcloud pubsub topics list-subscriptions events`; subscription state | *(expected causes, not induced live)* the BigQuery subscription cannot write because the Pub/Sub service agent lost `dataEditor` on `raw`, or the table schema drifted from the topic schema |
 | Rows in `raw`, none in `curated` | enricher logs | 403 from Cloud Run (push identity/audience wrong), or `sdp-enricher` lost `dataEditor` on `curated` |
 | Publishers get `INVALID_ARGUMENT` | schema revision vs. payload | Producer deployed ahead of schema change → [runbook 06](06-schema-evolution.md) |
 

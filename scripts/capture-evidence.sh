@@ -21,6 +21,8 @@ LAST="$(bq_scalar "SELECT MAX(REGEXP_EXTRACT(order_id, r'run-(\d+)-')) FROM \`$P
        JSON_VALUE(attributes,'\$.CloudPubSubDeadLetterSourceDeliveryCount') AS deliveries,
        JSON_VALUE(attributes,'\$.CloudPubSubDeadLetterSourceSubscription') AS source_sub
        FROM \`$P.raw.dead_letters\` WHERE JSON_VALUE(data,'\$.order_id') LIKE 'run-$LAST-%' ORDER BY 1"; echo
+  echo "\$ bq query  # which subscription forwarded them? (both paths have a dead-letter policy)"
+  bqq "SELECT JSON_VALUE(attributes,'\$.CloudPubSubDeadLetterSourceSubscription') AS source_subscription, COUNT(*) AS dead_letters FROM \`$P.raw.dead_letters\` GROUP BY 1 ORDER BY 1"; echo
 } > "$E/dead-letters.txt"
 
 TOKEN=$(gcloud auth print-access-token --impersonate-service-account="sdp-analyst@$P.iam.gserviceaccount.com" 2>/dev/null | tail -1)
