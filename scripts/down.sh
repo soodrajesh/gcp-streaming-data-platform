@@ -23,9 +23,9 @@ if [ "$PURGE" = 1 ]; then
 else log "2/2 Kept state bucket gs://$STATE_BUCKET (a few KB; --purge removes it)"; fi
 
 log "Anything billable left?"
-echo "  Cloud Run services: $(gcloud run services list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | wc -l | tr -d ' ')"
-echo "  Cloud Run jobs:     $(gcloud run jobs list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | wc -l | tr -d ' ')"
+echo "  Cloud Run service 'enricher': $(gcloud run services list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | grep -cx enricher || true)"
+echo "  Cloud Run job 'generator':    $(gcloud run jobs list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | grep -cx generator || true)"
 echo "  Pub/Sub topics (events, events-dlq): $(gcloud pubsub topics list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | grep -cE '/topics/(events|events-dlq)$' || true)"
-echo "  Pub/Sub subs:       $(gcloud pubsub subscriptions list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | wc -l | tr -d ' ')"
+echo "  Pub/Sub subs (events-*):      $(gcloud pubsub subscriptions list --project "$PROJECT_ID" --format='value(name)' 2>/dev/null | grep -cE '/subscriptions/events-' || true)"
 echo "  BQ datasets (raw/curated/mart): $(bq --project_id "$PROJECT_ID" ls --format=csv 2>/dev/null | grep -cE '^(raw|curated|mart)$' || true)"
 log "DONE"
