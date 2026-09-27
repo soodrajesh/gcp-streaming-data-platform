@@ -15,6 +15,8 @@ tf_init
 [ "$PLAN_ONLY" = 1 ] && { $TF plan -input=false; exit 0; }
 
 log "2/5 Phase 1: topics, Avro schema, BigQuery, IAM, monitoring, registry"
+# Re-runs must not tear down phase-2 resources: keep the previous image during phase 1.
+[ -s "$ROOT/.last-image" ] && export TF_VAR_image="$(cat "$ROOT/.last-image")"
 $TF apply -input=false -auto-approve
 out() { $TF output -raw "$1"; }
 REPO="$(out artifact_repo)"; BUCKET="$(out build_bucket)"; BUILD_SA="$(out build_sa)"
