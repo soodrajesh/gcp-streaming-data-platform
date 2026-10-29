@@ -10,7 +10,7 @@ import base64
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import Flask, request
 
@@ -40,7 +40,7 @@ def validate(e: dict) -> None:
 
 
 def enrich(e: dict, now: datetime | None = None) -> dict:
-    now = now or datetime.now(timezone.utc)
+    now = now or datetime.now(UTC)
     rate = FX_TO_EUR[e["currency"]]
     return {
         "event_id": e["event_id"],
@@ -48,7 +48,7 @@ def enrich(e: dict, now: datetime | None = None) -> dict:
         "customer_email": e["customer_email"].strip().lower(),
         "amount": float(e["amount"]),
         "currency": e["currency"],
-        "event_time": datetime.fromtimestamp(e["event_time"] / 1_000_000, tz=timezone.utc).isoformat(),
+        "event_time": datetime.fromtimestamp(e["event_time"] / 1_000_000, tz=UTC).isoformat(),
         "amount_eur": round(e["amount"] * rate, 4),
         "fx_rate": rate,
         "enriched_at": now.isoformat(),

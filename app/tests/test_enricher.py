@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -16,7 +16,7 @@ GOOD = {
 
 def test_valid_event_passes_and_is_enriched():
     validate(GOOD)
-    row = enrich(GOOD, now=datetime(2026, 1, 1, tzinfo=timezone.utc))
+    row = enrich(GOOD, now=datetime(2026, 1, 1, tzinfo=UTC))
     assert row["customer_email"] == "ana@example.com"
     assert row["amount_eur"] == 92.0 and row["fx_rate"] == 0.92
     assert row["event_time"].startswith("2025-09-16")
